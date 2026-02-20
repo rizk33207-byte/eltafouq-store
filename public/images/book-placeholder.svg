@@ -1,0 +1,21 @@
+<svg width="600" height="780" viewBox="0 0 600 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="coverGradient" x1="30" y1="20" x2="570" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F6FDB" />
+      <stop offset="0.55" stop-color="#0D4EAC" />
+      <stop offset="1" stop-color="#12335F" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="780" rx="30" fill="url(#coverGradient)" />
+  <circle cx="490" cy="120" r="95" fill="#FFFFFF" fill-opacity="0.1" />
+  <circle cx="120" cy="690" r="120" fill="#FFFFFF" fill-opacity="0.08" />
+  <rect x="70" y="110" width="460" height="20" rx="10" fill="#FFFFFF" fill-opacity="0.35" />
+  <rect x="70" y="160" width="300" height="14" rx="7" fill="#FFFFFF" fill-opacity="0.3" />
+  <rect x="70" y="535" width="460" height="2" fill="#FFFFFF" fill-opacity="0.28" />
+  <text x="70" y="615" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="700" letter-spacing="0.08em">
+    EL TAFOUK
+  </text>
+  <text x="70" y="675" fill="white" fill-opacity="0.92" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="500" letter-spacing="0.1em">
+    BOOK COVER
+  </text>
+</svg>

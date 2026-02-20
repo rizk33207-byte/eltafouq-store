@@ -1,0 +1,44 @@
+{
+  "name": "eltafoq2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "@upstash/ratelimit": "^2.0.7",
+    "@upstash/redis": "^1.35.4",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.9.0",
+    "lucide-react": "^0.574.0",
+    "next": "16.1.6",
+    "next-intl": "^4.8.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "zod": "^4.1.5",
+    "zustand": "^5.0.11"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "prisma": "^6.19.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.5",
+    "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

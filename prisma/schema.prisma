@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Book {
+  id          String   @id
+  title       String
+  grade       String
+  language    String
+  subject     String
+  price       Float
+  description String
+  image       String?
+  featured    Boolean  @default(false)
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orderItems  OrderItem[]
+
+  @@index([grade, language, subject])
+  @@index([featured])
+}
+
+model Admin {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  role      AdminRole @default(ADMIN)
+  createdAt DateTime  @default(now())
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  orderId      String      @unique
+  status       OrderStatus @default(PENDING)
+  channel      String      @default("WHATSAPP")
+  subtotal     Float
+  shipping     Float       @default(0)
+  total        Float
+  customerName String
+  phone        String
+  city         String
+  address      String
+  notes        String?
+  items        OrderItem[]
+  createdAt    DateTime    @default(now())
+  confirmedAt  DateTime?
+  shippedAt    DateTime?
+  deliveredAt  DateTime?
+  cancelledAt  DateTime?
+  updatedAt    DateTime    @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id            String  @id @default(cuid())
+  orderId       String
+  bookId        String
+  qty           Int
+  unitPrice     Float
+  titleSnapshot String
+  imageSnapshot String?
+  createdAt     DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  book  Book  @relation(fields: [bookId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([bookId])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+}
