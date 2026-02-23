@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { unstable_noStore as noStore } from "next/cache";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import BookCard from "@/components/BookCard";
 import RevealOnScroll from "@/components/RevealOnScroll";
@@ -22,6 +23,9 @@ interface HeroCard {
 interface HomePageProps {
   params: Promise<{ locale: string }>;
 }
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata({
   params,
@@ -100,6 +104,7 @@ const HeroIcon = ({ icon }: { icon: HeroIconName }) => {
 };
 
 export default async function HomePage({ params }: HomePageProps) {
+  noStore();
   const { locale } = await params;
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);

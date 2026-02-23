@@ -8,6 +8,7 @@ import {
 } from "@/lib/server/prisma-errors";
 import { revenueRangeSchema } from "@/lib/server/validation";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const querySchema = z.object({

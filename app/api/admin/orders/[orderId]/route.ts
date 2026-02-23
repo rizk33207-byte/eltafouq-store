@@ -16,6 +16,7 @@ interface AdminOrderRouteContext {
   params: Promise<{ orderId: string }>;
 }
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function PATCH(

@@ -8,6 +8,7 @@ import {
 } from "@/lib/server/admin-session";
 import { adminLoginBodySchema } from "@/lib/server/validation";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {

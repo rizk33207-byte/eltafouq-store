@@ -1,26 +1,43 @@
+import "server-only";
+
+/**
+ * lib/api.ts — public data-access API for server components and pages.
+ *
+ * DATA_SOURCE controls whether data comes from:
+ *   - "mock"   → static in-memory data (lib/data.ts)   — default, no DB needed
+ *   - "remote" → Neon/Prisma via lib/server/books-service.ts — NO internal fetch
+ *
+ * IMPORTANT: The "remote" path calls the service layer (Prisma) directly.
+ * It must NEVER issue a self-referential fetch() to /api/books because there
+ * is no localhost server running during Next.js server-side rendering on Vercel.
+ * If you need an HTTP round-trip (e.g. from a true edge client), use the
+ * /api/books route handler instead and pass an absolute NEXT_PUBLIC_SITE_URL.
+ */
+
 import {
   books as mockBooks,
   filterBooks as filterMockBooks,
   parseBookFilters as parseMockBookFilters,
 } from "./data";
-import { isLang, isGrade, isSubject, type ApiResult, type Book, type BookFilters } from "./types";
+import {
+  listBooks,
+  getBook,
+} from "@/lib/server/books-service";
+import {
+  isLang,
+  isGrade,
+  isSubject,
+  type ApiResult,
+  type Book,
+  type BookFilters,
+} from "./types";
 
 const DATA_SOURCE: "mock" | "remote" =
-  (process.env.NEXT_PUBLIC_DATA_SOURCE ?? process.env.DATA_SOURCE) === "remote"
-    ? "remote"
-    : "mock";
+  process.env.DATA_SOURCE === "remote" ? "remote" : "mock";
 
-const resolveApiUrl = (path: string): string => {
-  if (typeof window !== "undefined") {
-    return path;
-  }
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-
-  return `${baseUrl}${path}`;
-};
+// ---------------------------------------------------------------------------
+// Filter helpers (shared between mock and remote paths)
+// ---------------------------------------------------------------------------
 
 const normalizeParam = (
   value: string | string[] | undefined,
@@ -34,52 +51,6 @@ const normalizeParam = (
   }
 
   return undefined;
-};
-
-const buildQueryString = (filters: BookFilters): string => {
-  const params = new URLSearchParams();
-
-  if (filters.grade) {
-    params.set("grade", filters.grade);
-  }
-
-  if (filters.lang) {
-    params.set("lang", filters.lang);
-  }
-
-  if (filters.subject) {
-    params.set("subject", filters.subject);
-  }
-
-  if (filters.q) {
-    params.set("q", filters.q);
-  }
-
-  if (filters.featured !== undefined) {
-    params.set("featured", String(filters.featured));
-  }
-
-  return params.toString();
-};
-
-const applyAdditionalMockFilters = (items: Book[], filters: BookFilters): Book[] => {
-  return items.filter((book) => {
-    if (filters.featured !== undefined && Boolean(book.featured) !== filters.featured) {
-      return false;
-    }
-
-    if (filters.q) {
-      const query = filters.q.trim().toLowerCase();
-      if (query.length > 0) {
-        const haystack = `${book.title} ${book.description}`.toLowerCase();
-        if (!haystack.includes(query)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  });
 };
 
 export const parseBookFilters = (
@@ -132,51 +103,76 @@ export const parseBookFiltersFromSearchParams = (
   };
 };
 
+// ---------------------------------------------------------------------------
+// Mock-path helpers
+// ---------------------------------------------------------------------------
+
+const applyAdditionalMockFilters = (items: Book[], filters: BookFilters): Book[] =>
+  items.filter((book) => {
+    if (filters.featured !== undefined && Boolean(book.featured) !== filters.featured) {
+      return false;
+    }
+
+    if (filters.q) {
+      const query = filters.q.trim().toLowerCase();
+      if (query.length > 0) {
+        const haystack = `${book.title} ${book.description}`.toLowerCase();
+        if (!haystack.includes(query)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  });
+
+// ---------------------------------------------------------------------------
+// Public API — called directly by server components and pages
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch a filtered list of books.
+ *
+ * "mock"   → filters in-memory data   (no DB, no network)
+ * "remote" → calls listBooks() via Prisma  (no HTTP round-trip)
+ */
 export const getBooks = async (
   filters: BookFilters = {},
 ): Promise<ApiResult<Book[]>> => {
   if (DATA_SOURCE === "remote") {
-    const query = buildQueryString(filters);
-    const response = await fetch(resolveApiUrl(`/api/books${query ? `?${query}` : ""}`), {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch books");
-    }
-
-    return (await response.json()) as ApiResult<Book[]>;
+    const result = await listBooks(filters);
+    return {
+      data: result.data as Book[],
+      meta: { total: result.total },
+    };
   }
 
+  // mock path
   const baseResults = filterMockBooks(filters as Parameters<typeof filterMockBooks>[0]);
   const filtered = applyAdditionalMockFilters(baseResults as Book[], filters);
 
   return {
     data: filtered,
-    meta: {
-      total: filtered.length,
-    },
+    meta: { total: filtered.length },
   };
 };
 
+/**
+ * Fetch a single book by its ID.
+ *
+ * "mock"   → looks up in-memory array  (no DB, no network)
+ * "remote" → calls getBook() via Prisma  (no HTTP round-trip)
+ */
 export const getBookById = async (id: string): Promise<Book | null> => {
   if (DATA_SOURCE === "remote") {
-    const response = await fetch(resolveApiUrl(`/api/books/${id}`), { cache: "no-store" });
-
-    if (response.status === 404) {
-      return null;
-    }
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch book");
-    }
-
-    const result = (await response.json()) as ApiResult<Book>;
-    return result.data;
+    const book = await getBook(id);
+    return book as Book | null;
   }
 
+  // mock path
   const book = (mockBooks as Book[]).find((item) => item.id === id);
   return book ?? null;
 };
 
+/** Returns mock book IDs — used by the sitemap generator */
 export const getMockBookIds = (): string[] => (mockBooks as Book[]).map((book) => book.id);

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/admin-guard";
 import { assertCloudinaryEnv, getCloudinaryEnvDiagnostics } from "@/lib/server/env";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_IMAGE_SIZE_BYTES = 7 * 1024 * 1024;

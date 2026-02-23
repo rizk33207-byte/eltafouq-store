@@ -9,6 +9,7 @@ import {
 import type { OrderStatus } from "@/lib/types";
 
 const PAGE_SIZE = 20;
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const statusValues: OrderStatus[] = [
   "PENDING",

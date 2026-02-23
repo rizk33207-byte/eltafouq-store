@@ -17,6 +17,7 @@ interface AdminBookRouteContext {
   params: Promise<{ id: string }>;
 }
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const bookSelect = {

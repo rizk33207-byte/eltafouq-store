@@ -17,6 +17,7 @@ const querySchema = z.object({
   subject: z.enum(["bio", "phy", "chem"]).optional(),
 });
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const bookSelect = {

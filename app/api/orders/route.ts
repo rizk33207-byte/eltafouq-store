@@ -18,6 +18,7 @@ const getClientIdentifier = (request: Request): string => {
   return ipFromForwarded || ipFromRealIp || "local-dev";
 };
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {

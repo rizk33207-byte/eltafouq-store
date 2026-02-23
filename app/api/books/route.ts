@@ -7,6 +7,7 @@ import {
 } from "@/lib/server/prisma-errors";
 import { booksQuerySchema } from "@/lib/server/validation";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
